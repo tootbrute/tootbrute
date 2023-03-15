@@ -1,12 +1,17 @@
 #!/bin/bash
-#Script to backup photos to Photoprism, and index on external RAID
+# Yunohost Script
+# Move your photos, and videos from Nextcloud to Photoprism
+# by tootbrute
+
+# VARIABLES
+current_date=$(date +%Y)/$(date +%m)/
+
+# SCRIPT
 echo '# PHOTOPRISM SCRIPT - START'
 echo '#'
 echo '## START RSYNC ELIAS PHOTOS...'
-echo '### SET VARIABLES'
-current_date=$(date +%Y)/$(date +%m)/
 echo '#### CURRENT DATE IS:' $current_date
-photos_import='/home/yunohost.app/nextcloud/data/elias/files/EliasPics/'
+photos_import='/home/yunohost.app/nextcloud/data/USERNAME/files/USERNAMEPics/'
 photos_src=$photos_import$current_date
 echo '##### PHOTO SOURCE DIRECTORY IS:'
 echo $photos_src
@@ -18,18 +23,3 @@ echo '####### SENDING FILES WITH RSYNC...'
 rsync -avh --mkpath $photos_src $photos_dest
 echo '####### END RSYNC ELIAS PHOTOS now INDEX.'
 docker exec photoprism photoprism index --cleanup
-echo '#'
-echo '-#'
-echo '-# START RSYNC CHANTEL PHOTOS...'
-photos_import='/home/yunohost.app/nextcloud/data/elias/files/ChantelPics/'
-photos_src=$photos_import$current_date
-echo '-## PHOTO SOURCE DIRECTORY IS:'
-echo $photos_src
-photos_raid='/mnt/hermes/ChantelPhotos/originals/'
-photos_dest=$photos_raid$current_date
-echo '-### PHOTO DESTINATION DIRECTORY IS:'
-echo $photos_dest
-echo '-#### SENDING FILES WITH RSYNC...'
-rsync -avh --mkpath $photos_src $photos_dest
-echo '-##### END RSYNC CHANTEL PHOTOS now INDEX.'
-docker exec photoprism_chantel photoprism index --cleanup
