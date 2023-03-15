@@ -1,25 +1,20 @@
 #!/bin/bash
-# Yunohost Script
-# Move your photos, and videos from Nextcloud to Photoprism
-# by tootbrute
-
+# Photoprism Script by tootbrute
+#===============================
+# This script will:
+# - move your photos from your Nextcloud folder to your Photoprism folder
+# - re-index the new photos in your Photoprism
+#
 # VARIABLES
-current_date=$(date +%Y)/$(date +%m)/
+# ex. /2023/03/
+year_month=$(date +%Y)/$(date +%m)/
+# Where are your photos stored in Nextcloud?
+photos_nextcloud='/home/yunohost.app/nextcloud/data/USERNAME/files/Pictures/'
+photos_source=$photos_nextcloud$year_month
+# Where do you want your photos to go?
+photos_raid='/mnt/raid_drive/Pictures/originals/'
+photos_destination=$photos_raid$year_month
 
-# SCRIPT
-echo '# PHOTOPRISM SCRIPT - START'
-echo '#'
-echo '## START RSYNC ELIAS PHOTOS...'
-echo '#### CURRENT DATE IS:' $current_date
-photos_import='/home/yunohost.app/nextcloud/data/USERNAME/files/USERNAMEPics/'
-photos_src=$photos_import$current_date
-echo '##### PHOTO SOURCE DIRECTORY IS:'
-echo $photos_src
-photos_raid='/mnt/hermes/Pictures/originals/'
-photos_dest=$photos_raid$current_date
-echo '###### PHOTO DESTINATION DIRECTORY IS:'
-echo $photos_dest
-echo '####### SENDING FILES WITH RSYNC...'
-rsync -avh --mkpath $photos_src $photos_dest
-echo '####### END RSYNC ELIAS PHOTOS now INDEX.'
+# SCRIPT BEGIN
+rsync -avh --mkpath $photos_source $photos_destination
 docker exec photoprism photoprism index --cleanup
