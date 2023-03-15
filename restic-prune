@@ -1,0 +1,32 @@
+#!/bin/bash
+# Restic Prune Script by tootbrute
+# =================================
+#Script to prune old snapshots files from a restic repository stored locally, and one offsite
+# NOTE: be careful with the prune command, read the docs carefully
+# https://restic.readthedocs.io/en/latest/060_forget.html?highlight=prune#removing-backup-snapshots
+
+# Variables
+# Set the IP address of Tailscale node for offsite backup
+offsite_backup_server=$(tailscale status | grep your_server_tailscale_name | grep -E -o '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+')
+
+# Your Username
+username=change_to_your_username
+
+# Start Script
+# =================================
+# Local restic repo
+source /home/$username/.restic-info
+# restic keep last 30 snapshots, group by tags
+restic forget --group-by tags  --keep-last 30 --prune
+# check the data is still ok
+restic check --read-data-subset=2% 
+
+# Offsite restic repo
+source /home/$username/.restic-offsite
+echo "- ## RESTIC: keep last 60, group by tags"
+restic -r rest:http://$offsite_backup_server:8000/
+# check the data is still ok
+restic check --read-data-subset=2% 
+
+# I run this script weekly via cron
+# Yunohost should email you the result of this script running via email automatically
